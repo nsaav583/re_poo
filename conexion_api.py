@@ -18,7 +18,7 @@ if response.status_code == 200:
     data = response.json()
     print("Nombre del Libro: " + data["titulo"])
     print("Autor: " + data["autor"])
-    print("Categorias: " + data["categorias"[1]])
+    # print("Categorias: " + data["categorias"]) #TO DO XD
     print("Descripción: " + data["descripcion"])
     print("ISBN: " + data["isbn"])
     print("Número de paginas: " + str(data["numero_paginas"]))
