@@ -1,4 +1,4 @@
-host = ""
-user = ""
+host = "localhost"
+user = "root"
 password = ""
-database = ""
+database = "Insertar nombre de base de datos"
