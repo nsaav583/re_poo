@@ -2,15 +2,16 @@ import bcrypt
 
 class User:
     def __init__(self) -> None:
-        self.__usuario: str = ""
-        self.__password: str = ""
         self.__id = -1
+        self.__name: str = ""
+        self.__password: str = ""
+        
 
-    def get_usuario(self) -> str:
-        return self.__usuario
+    def get_name(self) -> str:
+        return self.__name
 
-    def set_usuario(self, usuario: str):
-        self.__usuario = usuario
+    def set_name(self, name: str):
+        self.__name = name
 
     def get_password(self) -> str:
         return self.__password
@@ -31,9 +32,3 @@ class User:
 
     def set_id(self, user_id: int):
         self.__id = user_id
-
-    def check_password(self, password: str) -> bool:
-        
-        # Verifica si la contraseña proporcionada coincide con la encriptada
-        
-        return bcrypt.checkpw(password.encode('utf-8'), self.__password.encode('utf-8'))
