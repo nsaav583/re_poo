@@ -17,16 +17,26 @@ class UserRepository:
         # TODO: Realizar validacion para que retorne none cuando no exista el usuario
         return user
 
-    # TODO: insert
+   # Funcion para insertar un usuario y contraseña en la tabla User, encriptar contraseña y almacenar en la base de datos (probar)
     def create_user(self, user: User) -> User:
-        sql = "INSERT INTO User (name, email) VALUES (%s, %s)"
+        # encriptar contraseña antes de guardarla en la base
+        hashed_password = self._hash_password(user.get_password())
+        # consulta sql para insertar usuario y contraseña
+        sql = "INSERT INTO User (usuario, password) VALUES (%s, %s)"
         self.__conn.execute(sql, (
             user.get_name(), 
-            user.get_email()
+            hashed_password
         ))
-        # TODO: Obtener el id del usuario insertado en base de datos y asignar al objeto
+        # Obtener el id del cliente insertado en base de datos y asignar al objeto
+        user_id = self.__conn.lastrowid
+        user.set_id(user_id)
         self.__conn.commit()
         return user
+    def contraseña_encriptada(self, password: str) -> str:
+        # encriptrar contraseña con bcrypt
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed_password.decode('utf-8')  # devolvemos la contraseña encriptada
 
     # TODO: update
     def update_user(self, user: User) -> User:
