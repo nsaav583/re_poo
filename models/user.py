@@ -20,10 +20,11 @@ class User:
         self.__password = self._hash_password(password)
 
     def _hash_password(self, password: str) -> str:
-        # Genera el hash de la contraseña usando bcrypt."""
+        # Genera el hash de la contraseña usando bcrypt
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-        return hashed_password.decode('utf-8')  # Retorna la contraseña encriptada
+        # devuelve contraseña encriptada
+        return hashed_password.decode('utf-8')
 
     def get_id(self) -> int:
         return self.__id
