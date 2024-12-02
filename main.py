@@ -6,40 +6,29 @@ from models.user import User
 conn = MySQLConnection(host, user, password, database)
 user_repository = UserRepository(conn)
 
+# DESplegar mmenu para gestionar usuarios
 while True:
-    print("MENU MANTENEDOR")
-    print("1. Mostrar todos los usuarios")
-    print("2. Agregar un usuario")
-    print("3. Editar un usuario")
-    print("4. Eliminar un usuario")
-    print("5. Salir")
+    print("LIBRASTOCK")
+    print("1. Registrar un usuario")
+    print("2. Iniciar sesión")
+    print("3. Salir")
     option = input("Ingrese su opcion: ")
     if(option == "1"):
-        print("id \t\t nombre \t\t email")
-        users = user_repository.get_all_user()
-        for user in users:
-            print(f"{user.get_id()} \t\t {user.get_name()} \t\t {user.get_email()}")
-    if(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
-        email = input("Ingrese el email del usuario: ")
+        password = input("Ingrese el la contraseña del usuario: ")
         user = User()
         user.set_name(name)
-        user.set_email(email)
+        user.set_password(password)
         user_repository.create_user(user)
         print("Usuario registrado exitosamente.")
-    if(option == "3"):
-        id = input("Ingrese el id del usuario: ")
+        print(user.get_password()) 
+    elif(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
-        email = input("Ingrese el email del usuario: ")
-        user = User()
-        user.set_id(id)
+        password = input("Ingrese la contraseña del usuario: ")
         user.set_name(name)
-        user.set_email(email)
-        user_repository.update_user(user)
-        print("El usuario fue modificado exitosamente.")
-    if (option == "4"):
-        id = input("Ingrese el id del usuario: ")
-        user_repository.delete_user(id)
-        print("El usuario fue eliminado exitosamente.")
-    if(option == "5"):
+        user.set_password(password)
+        print("Sesión iniciada exitosamente.")
+    elif(option == "3"):
         break
+    else:
+        print("debe ingresar una opción valida, entre 1 a 3")
