@@ -26,3 +26,16 @@ class UserRepository:
         # Obtener el id del cliente insertado en base de datos y asignar al objeto
         self.__conn.commit()
         return user
+
+# FUNCION PARA logear usuario, verificar contraseña y/o name, en caso de que el usuario exista en la base de datos imprimir "bienvenido !!!" y en caso de que no imprime "Usuario no encontrado o contraseña incorrecta".
+    def login_usuario(self, name: str, password: str) -> User:
+        sql = "SELECT id, name, password FROM User WHERE name = %s"
+        self.__conn.execute(sql, (name,))
+        result = self.__conn.fetchone()
+        if result is None:
+            return None
+        contraseña_guardada = result[2]
+        if bcrypt.checkpw(password.encode('utf-8'), contraseña_guardada.encode('utf-8')):
+            return User()
+        else:
+            return None
