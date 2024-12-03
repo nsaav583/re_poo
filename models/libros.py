@@ -1,3 +1,4 @@
+import json
 class Libro:
     def __init__(self) -> None:
         self.__id: int = -1
@@ -29,3 +30,5 @@ class Libro:
     
     def set_isbn(self, isbn: str):
         self.__isbn = isbn
+    def to_json:
+        pass
