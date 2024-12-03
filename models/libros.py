@@ -5,7 +5,7 @@ class Libro:
         self.__titulo: str = ""
         self.__autor: str = ""
         self.__isbn: str = ""
-        # self.__disponibilidad: # definir tipo para dispinibilidad
+        self.__disponibilidad: # definir tipo para dispinibilidad
     
     def get_id(self):
         return self.__id
@@ -30,5 +30,12 @@ class Libro:
     
     def set_isbn(self, isbn: str):
         self.__isbn = isbn
-    def to_json:
+        
+    def to_json(self): (sacar del github del profe)
+        return 
         pass
+        
+    def from_json(data): -> 'Libro':
+        data_dict = json.loads(data)
+        return Libro(**data_dict)
+    
