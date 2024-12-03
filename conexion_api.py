@@ -4,7 +4,7 @@ print("-----Lista de libros-----")
 response_book = requests.get("https://poo.nsideas.cl/api/libros")
 
 for book in response_book.json():
-    print(f"Título: {book["titulo"]}, ISBN: {book["isbn"]}")
+    print(f"Título: {book['titulo']}, ISBN: {book['isbn']}")
 
 isbn = input("Ingrese el isbn del libro: ")
 
@@ -18,10 +18,11 @@ if response.status_code == 200:
     data = response.json()
     print("Nombre del Libro: " + data["titulo"])
     print("Autor: " + data["autor"])
-    # print("Categorias: " + data["categorias"]) #TO DO XD
+    print("Categorias: " + ", ".join(data["categorias"])) #join sirve para unir elementos de un iterable(elementos de la lista categorias) ", " indica que la coma será el separador.
     print("Descripción: " + data["descripcion"])
     print("ISBN: " + data["isbn"])
     print("Número de paginas: " + str(data["numero_paginas"]))
 else:
     print("Error")
+
 
