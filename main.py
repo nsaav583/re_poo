@@ -25,9 +25,13 @@ while True:
     elif(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
         password = input("Ingrese la contraseña del usuario: ")
-        user.set_name(name)
-        user.set_password(password)
-        print("Sesión iniciada exitosamente.")
+        user = user_repository.login_usuario(name, password)
+        if user is None:
+            print("Usuario no encontrado o contraseña incorrecta.")
+        else:
+            # Si login_usuario devuelve un usuario válido
+            print("Bienvenido !!!!.")
+            # aqui se puede agregar la logica para lo que sucede despues de iniciar sesión (CRUD)
     elif(option == "3"):
         break
     else:
