@@ -30,7 +30,7 @@ while True:
             print("Usuario no encontrado o contraseña incorrecta.")
         else:
             # Si login_usuario devuelve un usuario válido
-            print("Bienvenido !!!!.")
+            print(f"Bienvenido {user.get_name()} !!!!")
             # aqui se puede agregar la logica para lo que sucede despues de iniciar sesión (CRUD)
     elif(option == "3"):
         break
