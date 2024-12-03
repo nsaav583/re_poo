@@ -36,6 +36,9 @@ class UserRepository:
             return None
         contraseña_guardada = result[2]
         if bcrypt.checkpw(password.encode('utf-8'), contraseña_guardada.encode('utf-8')):
-            return User()
+            user = User()
+            user.set_id(result[0])
+            user.set_name(result[1])
+            return user
         else:
             return None
