@@ -55,12 +55,12 @@ class Book:
 
     def to_json(self):
         return {
-            "autor": self.__author,
-            "categorias": self.__category.split(", "),
-            "descripcion": self.__description,
-            "isbn": self.__isbn,
-            "numero_paginas": self.__num_pag,
-            "titulo": self.__title
+            "autor": self.__author, # Asigna el autor del libro
+            "categorias": self.__category.split(", "), # Convierte las categorías (cadena) en una lista de categorías
+            "descripcion": self.__description, # Asigna la descripción del libro
+            "isbn": self.__isbn, # Asigna el ISBN del libro
+            "numero_paginas": self.__num_pag, # Asigna el número de páginas del libro
+            "titulo": self.__title # Asigna el título del libro
         }
         
     # Método estático para deserializar el JSON a un objeto Libro
@@ -68,9 +68,9 @@ class Book:
     def from_json(data: str) -> 'Book':
         book = Book()
         book.__author = data.get("autor", "")
-        book.__category = ", ".join(data.get("categorias", []))
+        book.__category = ", ".join(data.get("categorias", []))  # Une las categorías con ", " en una sola cadena
         book.__description = data.get("descripcion", "")
         book.__isbn = data.get("isbn", "")
-        book.__num_pag = data.get("numero_paginas", 0)
+        book.__num_pag = data.get("numero_paginas", 0) # Asigna el número de páginas, por defecto 0
         book.__title = data.get("titulo", "")
         return book
