@@ -6,7 +6,7 @@ class Book:
         self.__author: str = ""
         self.__category: str = ""
         self.__description: str = ""
-        self.__isbn: int = ""
+        self.__isbn: str = ""
         self.__num_pag: int = ""
         self.__title: str = ""
         # self.__disponibilidad: # falta definir tipo para dispinibilidad
@@ -35,10 +35,10 @@ class Book:
     def set_description(self, description: str):
         self.__description = description
 
-    def get_isbn(self) -> int:
+    def get_isbn(self) -> str:
         return self.__isbn
     
-    def set_isbn(self, isbn: int):
+    def set_isbn(self, isbn: str):
         self.__isbn = isbn
 
     def get_num_pag(self) -> int:
@@ -67,10 +67,10 @@ class Book:
     @staticmethod
     def from_json(data: str) -> 'Book':
         book = Book()
-        book.__author = data.get("autor", "")
-        book.__category = ", ".join(data.get("categorias", []))  # Une las categorías con ", " en una sola cadena
-        book.__description = data.get("descripcion", "")
-        book.__isbn = data.get("isbn", "")
-        book.__num_pag = data.get("numero_paginas", 0) # Asigna el número de páginas, por defecto 0
-        book.__title = data.get("titulo", "")
+        book.set_author(data.get("autor", ""))
+        book.set_category(", ".join(data.get("categorias", [])))  # Une las categorías con ", " en una sola cadena
+        book.set_description(data.get("descripcion", ""))
+        book.set_isbn(data.get("isbn", ""))
+        book.set_num_pag(data.get("numero_paginas", 0)) # Asigna el número de páginas, por defecto 0
+        book.set_title(data.get("titulo", ""))
         return book
