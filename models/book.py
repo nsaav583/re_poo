@@ -53,10 +53,24 @@ class Book:
     def set_title(self, title: str):
         self.__title = title
 
-    #def to_json(self): (sacar del github del profe) #falta implementar
-        #return 
-        #pass
+    def to_json(self):
+        return {
+            "autor": self.__author,
+            "categorias": self.__category.split(", "),
+            "descripcion": self.__description,
+            "isbn": self.__isbn,
+            "numero_paginas": self.__num_pag,
+            "titulo": self.__title
+        }
         
-    #def from_json(data): -> 'Libro':
-        #data_dict = json.loads(data)
-        #return Libro(**data_dict)
+    # Método estático para deserializar el JSON a un objeto Libro
+    @staticmethod
+    def from_json(data: str) -> 'Book':
+        book = Book()
+        book.__author = data.get("autor", "")
+        book.__category = ", ".join(data.get("categorias", []))
+        book.__description = data.get("descripcion", "")
+        book.__isbn = data.get("isbn", "")
+        book.__num_pag = data.get("numero_paginas", 0)
+        book.__title = data.get("titulo", "")
+        return book
