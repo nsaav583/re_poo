@@ -54,14 +54,7 @@ class Book:
         self.__title = title
 
     def to_json(self):
-        return {
-            "autor": self.__author, # Asigna el autor del libro
-            "categorias": self.__category.split(", "), # Convierte las categorías (cadena) en una lista de categorías
-            "descripcion": self.__description, # Asigna la descripción del libro
-            "isbn": self.__isbn, # Asigna el ISBN del libro
-            "numero_paginas": self.__num_pag, # Asigna el número de páginas del libro
-            "titulo": self.__title # Asigna el título del libro
-        }
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
         
     # Método estático para deserializar el JSON a un objeto Libro
     @staticmethod
