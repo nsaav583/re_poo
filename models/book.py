@@ -67,10 +67,10 @@ class Book:
     @staticmethod
     def from_json(data: str) -> 'Book':
         book = Book()
-        book.set_author(data.get("autor", ""))
-        book.set_category(", ".join(data.get("categorias", [])))  # Une las categorías con ", " en una sola cadena
-        book.set_description(data.get("descripcion", ""))
-        book.set_isbn(data.get("isbn", ""))
-        book.set_num_pag(data.get("numero_paginas", 0)) # Asigna el número de páginas, por defecto 0
-        book.set_title(data.get("titulo", ""))
+        book.__author = data.get("autor", "")
+        book.__category = ", ".join(data.get("categorias", []))  # Une las categorías con ", " en una sola cadena
+        book.__description = data.get("descripcion", "")
+        book.__isbn = data.get("isbn", "")
+        book.__num_pag = data.get("numero_paginas", 0) # Asigna el número de páginas, por defecto 0
+        book.__title = data.get("titulo", "")
         return book
