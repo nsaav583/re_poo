@@ -124,3 +124,7 @@ while True:
     else:
         print("debe ingresar una opción valida, entre 1 a 3")
 
+
+# ESTO ES PARA VER DETALLE DE UN LIBRO Y ALMACENARLO EN LA BASE DE DATOS (debo implementarlo en menu)
+# isbn = input("Ingrese ISBN del libro")  # ISBN de ejemplo
+# book_repository.obtener_book_desde_api(isbn)
