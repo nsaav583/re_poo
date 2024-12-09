@@ -36,22 +36,10 @@ class BookRepository:
         try:
             # Verificar si el libro ya existe en la base de datos
             verificar_libro = "SELECT COUNT(*) FROM libros WHERE isbn = %s"
-            self.__conn.execute(verificar_libro, (book.get_isbn(),))  # Acceso directo al atributo privado
+            self.__conn.execute(verificar_libro, (book.get_isbn(),))  # acceso al tributo con get
             result = self.__conn.fetchone()
             if result[0] == 0:
-                # Si no existe, insertar el libro en la base de datos
-                sql = """
-                INSERT INTO libros (isbn, titulo, autor, descripcion, categorias, num_paginas)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """
-                self.__conn.execute(sql, (
-                    str(book.get_isbn()),
-                    book.get_title(),
-                    book.get_author(),
-                    book.get_description(),
-                    str(book.get_category()),
-                    int(book.get_num_pag())
-                ))
+                self.create_book(book)
                 self.__conn.commit()
                 print(f"Libro con ISBN {book.get_isbn()} almacenado correctamente.")
             else:
