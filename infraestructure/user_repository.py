@@ -50,7 +50,7 @@ class UserRepository:
         #devuelve contraseña encriptada
         return hashed_password.decode('utf-8')
     
-    def check_password(self, password: str, hashed_password: str) -> bool:
+   # def check_password(self, password: str, hashed_password: str) -> bool:
         #
-        return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    #    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')) #Esto no lo usamos, considerar borrar(?)
 
