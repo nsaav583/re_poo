@@ -16,24 +16,15 @@ class BookRepository:
             response = requests.get(url)
             response.raise_for_status()  # Lanza una excepción si la solicitud tiene un error
 
-            # imprimir la respuesta completa para inspeccionar #TODO formato a la respuesta
+            # imprimir la respuesta completa para inspeccionar #TODO dar formato a la respuesta
             print(f"Respuesta de la API para ISBN {isbn}: {response.text}")
 
             # asignar formato JSON a la respuesta obtenida anteriormente
             data = response.json()
-
-            # Verificar si la respuesta contiene un libro
-            if isinstance(data, dict) and data.get("isbn"):
-                # Si la respuesta es un objeto JSON y contiene un ISBN
-                book = Book.from_json(data)
-
-                # aqui llamamos a la funcion creada para guardar libros en la base de datos
-                self.guardar_book_en_database(book)
-                return book
-            else:
-                print(f"No se encontraron datos para el ISBN {isbn} o la respuesta no tiene el formato esperado.")
-                return None
-
+            # Convertir el JSON a un objeto Book
+            # book_json = json.dumps(data)  # Convertir a string JSON #json.dups No lo utilizamos ya que lo enviaremos directo a la base de datos y no hacia una API o archivo
+            book = Book.from_json(data)  # Deserializar a un objeto Book
+            self.guardar_book_en_database(book)
         except requests.exceptions.RequestException as e:
             print(f"Error al consumir la API: {e}")
             return None
@@ -45,9 +36,8 @@ class BookRepository:
         try:
             # Verificar si el libro ya existe en la base de datos
             verificar_libro = "SELECT COUNT(*) FROM libros WHERE isbn = %s"
-            self.__conn.execute(verificar_libro, (book._Book__isbn,))  # Acceso directo al atributo privado
+            self.__conn.execute(verificar_libro, (book.get_isbn(),))  # Acceso directo al atributo privado
             result = self.__conn.fetchone()
-
             if result[0] == 0:
                 # Si no existe, insertar el libro en la base de datos
                 sql = """
@@ -55,14 +45,20 @@ class BookRepository:
                 VALUES (%s, %s, %s, %s, %s, %s)
                 """
                 self.__conn.execute(sql, (
-                    book._Book__isbn, book._Book__title, book._Book__author,
-                    book._Book__description, book._Book__category, book._Book__num_pag
+                    str(book.get_isbn()),
+                    book.get_title(),
+                    book.get_author(),
+                    book.get_description(),
+                    str(book.get_category()),
+                    int(book.get_num_pag())
                 ))
                 self.__conn.commit()
-                print(f"Libro con ISBN {book._Book__isbn} almacenado correctamente.")
+                print(f"Libro con ISBN {book.get_isbn()} almacenado correctamente.")
             else:
-                print(f"El libro con ISBN {book._Book__isbn} ya está registrado en la base de datos.")
+                print(f"El libro con ISBN {book.get_isbn()} ya está registrado en la base de datos.")
 
+        except Exception as e:
+            print(f"Error al guardar el libro en la base de datos: {e}")
         except Exception as e:
             print(f"Error al guardar el libro en la base de datos: {e}")
             
