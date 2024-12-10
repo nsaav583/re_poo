@@ -1,4 +1,3 @@
-import json
 
 class Book:
     def __init__(self) -> None:
@@ -7,9 +6,10 @@ class Book:
         self.__category: str = ""
         self.__description: str = ""
         self.__isbn: str = ""
-        self.__num_pag: int = ""
+        self.__num_pag: int = 0
         self.__title: str = ""
-        # self.__disponibilidad: # falta definir tipo para dispinibilidad
+        self.__availability: bool = True
+
     
     def get_id(self) -> int:
         return self.__id
@@ -53,17 +53,20 @@ class Book:
     def set_title(self, title: str):
         self.__title = title
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
-        
+    def get_availability(self) -> bool:
+        return self.__availability
+    
+    def set_availability(self, availability: bool):
+        self.__availability = availability
+
     # Método estático para deserializar el JSON a un objeto Libro
     @staticmethod
     def from_json(data: str) -> 'Book':
         book = Book()
-        book.__author = data.get("autor", "")
-        book.__category = ", ".join(data.get("categorias", []))  # Une las categorías con ", " en una sola cadena
-        book.__description = data.get("descripcion", "")
-        book.__isbn = data.get("isbn", "")
-        book.__num_pag = data.get("numero_paginas", 0) # Asigna el número de páginas, por defecto 0
-        book.__title = data.get("titulo", "")
+        book.set_author(data.get("autor", ""))
+        book.set_category(", ".join(data.get("categorias", [])))  # Une las categorías con ", " en una sola cadena
+        book.set_description(data.get("descripcion", ""))
+        book.set_isbn(data.get("isbn", ""))
+        book.set_num_pag(data.get("numero_paginas", 0)) # Asigna el número de páginas, por defecto 0
+        book.set_title(data.get("titulo", ""))
         return book
