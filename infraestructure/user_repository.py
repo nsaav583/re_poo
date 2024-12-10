@@ -1,6 +1,7 @@
 from infraestructure.connection import Connection
 from models.user import User
-from typing import List
+import pymysql
+import bcrypt 
 
 class UserRepository:
     def __init__(self, conn: Connection) -> None:
@@ -59,8 +60,7 @@ class UserRepository:
                 return f"Error de base de datos: {e}"
         except bcrypt.exceptions.BcryptError as e:
         # Captura cualquier error relacionado con bcrypt
-               return f"Error de bcrypt: {e}"
+            return f"Error de bcrypt: {e}"
         except Exception as e:
         # Captura cualquier otro error inesperado
-               return f"Ocurrió un error inesperado: {e}"
-
+            return f"Ocurrió un error inesperado: {e}"
