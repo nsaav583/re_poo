@@ -145,3 +145,31 @@ class BookRepository:
         self.__conn.execute(sql, (id,))
         result = self.__conn.fetchone()
         return result is not None #esto devuelve true si encuentra un id valido en la base de datos
+    # funcion usada en el main.py para ingresar datos de un libro con input (refactorización)
+    def get_book_input(self):
+        print("Ingrese a continuación los siguientes datos del libro que desea crear")
+        author = input("autor: ")
+        category = input("categoria: ")
+        description = input("descripción: ")
+        while True:
+            isbn = input("codigo ISBN (formato correcto 12-45 o 1245): ")
+            if isbn:  # verifica que no esté vacio
+                break
+            else:
+                print("El ISBN no puede estar vacío. Por favor, ingrese un código válido.")
+
+        while True:
+            try:
+                num_pag = int(input("Número de páginas: "))
+                break
+            except ValueError:
+                print("Por favor, ingrese un número válido para el número de páginas.")
+        title = input("titulo: ")
+        book = Book()
+        book.set_author(author)
+        book.set_category(category)
+        book.set_description(description)
+        book.set_isbn(isbn)
+        book.set_num_pag(num_pag)
+        book.set_title(title)
+        return book
