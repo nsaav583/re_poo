@@ -23,23 +23,10 @@ def menu_libros():
             print("5. Eliminar un libro")
             print("6. Volver al menu principal")
             option = input("Ingrese una opción: ")
-
             if option == "1":
-                #ver si se puede refactorizar esta opción
+                # opcion refactorizada
                 print("Ingrese a continuación los siguientes datos del libro que desea crear")
-                author = input("autor: ")
-                category = input("categoria: ")
-                description = input("descripción: ")
-                isbn = input("codigo ISBN: ")
-                num_pag = input("numero de paginas: ")
-                title = input("titulo: ")
-                book = Book()
-                book.set_author(author)
-                book.set_category(category)
-                book.set_description(description)
-                book.set_isbn(isbn)   #si se usa un isbn como 12-45, solo mostrara 12, hay que implementar bien esto
-                book.set_num_pag(num_pag)
-                book.set_title(title)
+                book = book_repository.get_book_input()
                 book_repository.create_book(book)
                 print("Libro creado con exito")
             elif option == "2":
@@ -58,22 +45,9 @@ def menu_libros():
                     print("Debe ingresar un ID valido")
                 else:
                 #ver si se puede optimizar y reutilizar el codigo para hacer preguntas, como se hizo en el semestre anterior
-                #ver si se puede refactorizar esta opción
                     print("Ingrese a continuación los siguientes datos del libro que desea editar")
-                    author = input("autor: ")
-                    category = input("categoria: ")
-                    description = input("descripción: ")
-                    isbn = input("codigo ISBN: ")
-                    num_pag = input("numero de paginas: ")
-                    title = input("titulo: ")
-                    book = Book()
-                    book.set_id(id)
-                    book.set_author(author)
-                    book.set_category(category)
-                    book.set_description(description)
-                    book.set_isbn(isbn)  
-                    book.set_num_pag(num_pag)
-                    book.set_title(title)
+                # se utiliza la funcion que pide los datos del libro
+                    book = book_repository.get_book_input()
                     book_repository.update_book(book)
                     print("\n")
                     print("Libro editado correctamente")
@@ -92,7 +66,6 @@ def menu_libros():
                 return
         except ValueError as e:
                 print(e)
-
 # Desplegar menu para gestionar usuarios
 while True:
     print("LIBRASTOCK")
@@ -101,25 +74,30 @@ while True:
     print("3. Salir")
     option = input("Ingrese su opcion: ")
     if(option == "1"):
-        name = input("Ingrese el nombre del usuario: ")
-        password = input("Ingrese el la contraseña del usuario: ")
-        user = User()
-        user.set_name(name)
-        user.set_password(password)
-        user_repository.create_user(user)
-        print("Usuario registrado exitosamente.")
+        try:
+            name = input("Ingrese el nombre del usuario: ")
+            password = input("Ingrese el la contraseña del usuario: ")
+            user = User()
+            user.set_name(name)
+            user.set_password(password)
+            user_repository.create_user(user)
+            print("Usuario registrado exitosamente.")
+        except ValueError as e:
+            print(f"Error: {e}")
     elif(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
         password = input("Ingrese la contraseña del usuario: ")
-        user = user_repository.login_user(name, password)
-        if user is None:
-            print("Usuario no encontrado o contraseña incorrecta.")
-        else:
-            # Si login_user devuelve un usuario válido se llama la menu de gestión de libros (CRUD)
-            print("Bienvenido !!!!.")
+        # llamamos a login_user y manejamos el retorno
+        result = user_repository.login_user(name, password)
+        if isinstance(result, str):  # si el resultado es un mensaje de error (tipo string)
+            print(result)  # mostrar el error ocurrido (puede ser de la base de datos o bcrypt)
+        elif result is None:  # si es None, las credenciales no son válidas
+            print("El Usuario o contraseña no son válidos.")
+        else:  # si no es un mensaje de error ni none, entonces es un objeto User válido
+            print(f"Bienvenido {result.get_name()}")
             menu_libros()
     elif(option == "3"):
-        print("el programa se ha cerrado correctamente")
+        print("El programa se ha cerrado correctamente")
         break
     else:
         print("debe ingresar una opción valida, entre 1 a 3")
