@@ -36,17 +36,31 @@ class UserRepository:
     
 # FUNCION PARA logear usuario, verificar contraseña y/o name, en caso de que el usuario exista en la base de datos imprimir "bienvenido !!!" y en caso de que no imprime "Usuario no encontrado o contraseña incorrecta".
     def login_user(self, name: str, password: str) -> User:
-        sql = "SELECT id, name, password FROM User WHERE name = %s"
-        self.__conn.execute(sql, (name,))
-        result = self.__conn.fetchone()
-        if result is None:
-            return None
-        contraseña_guardada = result[2]
-        if bcrypt.checkpw(password.encode('utf-8'), contraseña_guardada.encode('utf-8')):
-            user = User()
-            user.set_id(result[0])
-            user.set_name(result[1])
-            return user
-        else:
-            return None
+        try:
+            sql = "SELECT id, name, password FROM User WHERE name = %s"
+            self.__conn.execute(sql, (name,))
+            result = self.__conn.fetchone()
+        # Si no se encuentra al usuario
+            if result is None:
+                return None
+        # Obtener la contraseña guardada
+            contraseña_guardada = result[2]
+        # Verificar la contraseña
+            if bcrypt.checkpw(password.encode('utf-8'), contraseña_guardada.encode('utf-8')):
+                user = User()
+                user.set_id(result[0])
+                user.set_name(result[1])
+                return user
+            else:
+            # Si la contraseña no es correcta, retorna none
+                return None
+        except pymysql.MySQLError as e:
+        # Captura errores específicos de la base de datos (p.ej., problemas de conexión o ejecución de consulta)
+                return f"Error de base de datos: {e}"
+        except bcrypt.exceptions.BcryptError as e:
+        # Captura cualquier error relacionado con bcrypt
+               return f"Error de bcrypt: {e}"
+        except Exception as e:
+        # Captura cualquier otro error inesperado
+               return f"Ocurrió un error inesperado: {e}"
 
