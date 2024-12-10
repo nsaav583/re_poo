@@ -1,0 +1,37 @@
+from infraestructure.connection import Connection
+from models.book import Book
+from models.user import User
+from models.loan import Loan
+
+class LoanRepository:
+    def __init__(self, conn: Connection) -> None:
+        self.__conn = conn
+
+    #metodo para prestar un libro, recibiendo un usuario y un libro, extrayendo de ambos información
+    def loan_book(self, book: Book, user: User) -> Loan:
+        if self.is_available(book.get_id()): 
+            sql = "INSERT INTO loan (user_name, user_id, book_title, book_isbn) VALUES (%s, %s, %s, %s)"
+            self.__conn.execute(sql, (
+                user.get_name(),
+                user.get_id(),
+                book.get_title(),
+                book.get_isbn()
+            ))
+            self.__conn.commit()
+
+            # Actualizar disponibilidad del libro en la base de datos, en proceso
+            sql_update = "UPDATE book SET is_available = FALSE WHERE id = %s"
+            self.__conn.execute(sql_update, (book.get_id()))
+            self.__conn.commit()
+            print(f"Prestamo realizado con exito, ahora el usuario: {user.get_name()} tiene el libro: {book.get_title()}")
+            return Loan
+        else:          
+            print("El libro no se encuentra disponible")
+            return None
+
+    #metodo para ver si un libro esta disponible en la BD, en proceso
+    def is_available(self, book_id: int) -> bool:    
+        sql = "SELECT is_available FROM book WHERE id = %s"
+        self.__conn.execute(sql, (book_id))
+        result = self.__conn.fetchone()
+        return result
