@@ -2,13 +2,12 @@ from infraestructure.connection import Connection
 from models.book import Book
 from typing import List
 import requests
-import json
 
 class BookRepository:
     def __init__(self, conn: Connection) -> None:
         self.__conn = conn
         
-     def obtener_book_desde_api(self, isbn):
+    def get_book_from_api(self, isbn):
         url = f"https://poo.nsideas.cl/api/libros/{isbn}"
 
         try:
@@ -19,12 +18,11 @@ class BookRepository:
             # imprimir la respuesta completa para inspeccionar #TODO dar formato a la respuesta
             print(f"Respuesta de la API para ISBN {isbn}: {response.text}")
 
-            # asignar formato JSON a la respuesta obtenida anteriormente
-            data = response.json()
+            data = response.json() #deserializa el JSON 
             # Convertir el JSON a un objeto Book
             # book_json = json.dumps(data)  # Convertir a string JSON #json.dups No lo utilizamos ya que lo enviaremos directo a la base de datos y no hacia una API o archivo
-            book = Book.from_json(data)  # Deserializar a un objeto Book
-            self.guardar_book_en_database(book)
+            book = Book.from_json(data)  # instancia el JSON, ahora ya deserializado
+            self.create_book(book)
         except requests.exceptions.RequestException as e:
             print(f"Error al consumir la API: {e}")
             return None
@@ -32,16 +30,27 @@ class BookRepository:
             print(f"Error al procesar la respuesta de la API: {e}")
             return None
             
-    def guardar_book_en_database(self, book):
+    def create_book(self, book: Book) -> Book:
         try:
             # Verificar si el libro ya existe en la base de datos
-            verificar_libro = "SELECT COUNT(*) FROM libros WHERE isbn = %s"
+            verificar_libro = "SELECT COUNT(*) FROM book WHERE isbn = %s"
             self.__conn.execute(verificar_libro, (book.get_isbn(),))  # acceso al tributo con get
             result = self.__conn.fetchone()
+
             if result[0] == 0:
-                self.create_book(book)
+                sql = "INSERT INTO book (author, category, description, isbn, num_pag, title) VALUES (%s, %s, %s, %s, %s, %s)"
+                self.__conn.execute(sql, (
+                    book.get_author(), 
+                    book.get_category(),
+                    book.get_description(),
+                    book.get_isbn(),
+                    book.get_num_pag(),
+                    book.get_title()
+                ))
+                # TODO: Obtener el id del booke insertado en base de datos y asignar al objeto
                 self.__conn.commit()
                 print(f"Libro con ISBN {book.get_isbn()} almacenado correctamente.")
+                return book
             else:
                 print(f"El libro con ISBN {book.get_isbn()} ya está registrado en la base de datos.")
 
@@ -65,21 +74,6 @@ class BookRepository:
         print("\n")
         print(f" ID: {book.get_id()} \n Autor: {book.get_author()} \n Categoría: {book.get_category()} \n Descripción: {book.get_description()} \n ISBN: {book.get_isbn()} \n Numero de paginas: {book.get_num_pag()} \n Título: {book.get_title()}")
         # TODO: Realizar validacion para que retorne none cuando no exista el book
-        return book
-
-    # TODO: insert
-    def create_book(self, book: Book) -> Book:
-        sql = "INSERT INTO book (author, category, description, isbn, num_pag, title) VALUES (%s, %s, %s, %s, %s, %s)"
-        self.__conn.execute(sql, (
-            book.get_author(), 
-            book.get_category(),
-            book.get_description(),
-            book.get_isbn(),
-            book.get_num_pag(),
-            book.get_title()
-        ))
-        # TODO: Obtener el id del booke insertado en base de datos y asignar al objeto
-        self.__conn.commit()
         return book
 
     # TODO: update
@@ -172,4 +166,20 @@ class BookRepository:
         book.set_isbn(isbn)
         book.set_num_pag(num_pag)
         book.set_title(title)
+        return book
+
+    def get_book_input_for_editing(self):
+        # Solicita el ID del libro a editar
+        while True:
+            try: #con try validamos que sea un entero y con valid_id validamos que el id se encuentre en la base de datos
+                book_id = int(input("Ingrese el ID del libro que desea editar: "))
+                if self.valid_id(book_id) is False:
+                    print(f"No se encontró un libro con el ID {book_id}. Intente con otro ID.")
+                    continue
+                break
+            except ValueError:
+                print("El ID debe ser un número entero. Intente nuevamente.")
+
+        book = self.get_book_input() #llama al metodo que pide todos los datos menos id
+        book.set_id(book_id) #a ese objeto instanciado le agrega el id que previamente validamos
         return book
