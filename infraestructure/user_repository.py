@@ -18,14 +18,21 @@ class UserRepository:
 
 # Funcion para insertar un usuario y contraseña en la tabla User, encriptar contraseña y almacenar en la base de datos (probar)
     def create_user(self, user: User) -> User:
-        sql = "INSERT INTO User (name, password) VALUES (%s, %s)"
-        self.__conn.execute(sql, (
+        try:
+        # verificar si el usuario ya existe en la base de datos
+            sql_check = "SELECT COUNT(*) FROM User WHERE name = %s"
+            self.__conn.execute(sql_check, (user.get_name(),))
+            result = self.__conn.fetchone()
+            sql_insert = "INSERT INTO User (name, password) VALUES (%s, %s)"
+            self.__conn.execute(sql_insert, (
             user.get_name(),
             user.get_password()
-        ))
-        # Obtener el id del cliente insertado en base de datos y asignar al objeto
-        self.__conn.commit()
-        return user
+            ))
+            self.__conn.commit() # confirmar insercion
+            return user
+        except pymysql.err.IntegrityError as e:
+        # si ocurre un error de duplicado, lanzar una excepcion ValueError personalizada
+            raise ValueError(f"El nombre de usuario '{user.get_name()}' ya se encuentra registrado.") from e
     
 # FUNCION PARA logear usuario, verificar contraseña y/o name, en caso de que el usuario exista en la base de datos imprimir "bienvenido !!!" y en caso de que no imprime "Usuario no encontrado o contraseña incorrecta".
     def login_user(self, name: str, password: str) -> User:
