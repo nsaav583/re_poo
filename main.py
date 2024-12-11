@@ -34,12 +34,33 @@ def menu_libros():
             elif option == "2":
                 book_repository.all_books_info()
             elif option == "3":
-                book_repository.books_info()
-                id = int(input("Eliga el ID del libro sobre el cual quiera ver toda la información: "))
-                if book_repository.valid_id(id) is False: #si el id no se encuentra en la BD, devuelve False y se ejecuta el if
-                    print("Debe ingresar un ID valido")
+                isbn = input("Por favor ingresa el ISBN del libro: ")
+                book = book_repository.get_book_by_isbn(isbn)
+                if book:
+        # Si se encuentra el libro en la base de datos se mustran los datos del libro
+                    print("Libro encontrado en la base de datos:")
+                    print(f"Título: {book.get_title()}")
+                    print(f"Autor: {book.get_author()}")
+                    print(f"Categoría: {book.get_category()}")
+                    print(f"Descripción: {book.get_description()}")
+                    print(f"Número de páginas: {book.get_num_pag()}")
                 else:
-                    book_repository.get_book_by_id(id)
+        # si no se encuentra el libro en la base de datos, consultamos la API
+                    print("Libro no encontrado en la base de datos. Consultando API...")
+                    book_from_api = book_repository.get_book_from_api(isbn)
+                    if book_from_api:
+            # Mostrar la información obtenida de la API
+                        print("Información del libro desde la API:")
+                        print(f"Título: {book_from_api.get_title()}")
+                        print(f"Autor: {book_from_api.get_author()}")
+                        print(f"Categoría: {book_from_api.get_category()}")
+                        print(f"Descripción: {book_from_api.get_description()}")
+                        print(f"Número de páginas: {book_from_api.get_num_pag()}")
+            # Guardar el libro en la base de datos para futuras consultas
+                        book_repository.add_book(book_from_api)
+                        print("Libro guardado en la base de datos.")
+                    else:
+                        print("No se pudo encontrar el libro ni en la base de datos ni en la API.")
             elif option == "4":
                 book_repository.all_books_info()
                 #ver si se puede optimizar y reutilizar el codigo para hacer preguntas, como se hizo en el semestre anterior
