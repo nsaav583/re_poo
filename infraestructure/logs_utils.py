@@ -1,7 +1,7 @@
 from infraestructure.connection import Connection
 
 class Logger:
-    def __init__(self, conn = Connection) -> None:
+    def __init__(self, conn : Connection) -> None:
         self.__conn = conn
 
     def register_log(self, message):
