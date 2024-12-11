@@ -8,6 +8,8 @@ from infraestructure.logs_utils import Logger
 class BookRepository:
     def __init__(self, conn: Connection) -> None:
         self.__conn = conn
+        # Instancia el Logger una vez en el constructor
+        self.logger = Logger(self.__conn)  # ahora puedes usar `self.logger` en todos los métodos
         
     def get_book_by_isbn(self, isbn: str):
         # funcion que intenta obtener un libro de la base de datos por ISBN.
@@ -25,12 +27,15 @@ class BookRepository:
                 book.set_category(result[5])
                 book.set_num_pag(result[6])
                 return book
-            return None
+            else:
+                self.logger.register_log(f"No se encontró un libro con el ISBN {isbn}.")
+                return None
         except Exception as e:
+            self.logger.register_log(f"Error al intentar obtener libro con isbn {isbn}: {e}")
             print(f"Error fetching book by ISBN: {e}")
             return None
             
-      def get_book_from_api(self, isbn: str) -> Book:
+    def get_book_from_api(self, isbn: str) -> Book:
         url = f"https://poo.nsideas.cl/api/libros/{isbn}"
         response = requests.get(url)
         if response.status_code == 200:
@@ -43,9 +48,9 @@ class BookRepository:
                     book = Book.from_json(data)
                     return book
                 else:
-                    print("No se encontró información completa del libro para ese ISBN.")
+                    self.logger.register_log("No se encontró información completa del libro para ese ISBN.")
             except Exception as e:
-                print(f"Error al procesar la respuesta de la API: {e}")
+                self.logger.register_log(f"Error al procesar la respuesta de la API: {e}")
         else:
             print(f"Error al realizar la solicitud a la API: {response.status_code}")
         return None  
@@ -64,7 +69,7 @@ class BookRepository:
                 # TODO: Obtener el id del booke insertado en base de datos y asignar al objeto
                 self.__conn.commit()
             except Exception as e:
-                print(f"Error al agregar un libro a la base de datos: {e}")
+                self.logger.register_log(f"Error al agregar un libro a la base de datos: {e}")
             
     def get_book_by_id(self, book_id: int) -> Book:
         try: 
@@ -86,7 +91,7 @@ class BookRepository:
             print(f" ID: {book.get_id()} \n Autor: {book.get_author()} \n Categoría: {book.get_category()} \n Descripción: {book.get_description()} \n ISBN: {book.get_isbn()} \n Numero de paginas: {book.get_num_pag()} \n Título: {book.get_title()}")
             return book
         except Exception as e:
-            print(f"Error al obtener el libro con ID {book_id}: {e}")
+            self.logger.register_log(f"Error al obtener el libro con ID {book_id}: {e}")
     # TODO: update
     def update_book(self, book: Book) -> Book:
         try:
@@ -102,7 +107,7 @@ class BookRepository:
             ))
             self.__conn.commit()
         except Exception as e:
-            print(f"Error al editar un libro a la base de datos: {e}")
+            self.logger.register_log(f"Error al editar un libro a la base de datos: {e}")
             
     # TODO: delete
     def delete_book(self, id: int) -> None:
@@ -111,7 +116,7 @@ class BookRepository:
             self.__conn.execute(sql, (id))
             self.__conn.commit()
         except Exception as e:
-            print(f"Error al eliminar un libro a la base de datos: {e}")
+            self.logger.register_log(f"Error al eliminar un libro a la base de datos: {e}")
 
     # TODO: Select all
     def get_all_book(self) -> List[Book]:
@@ -132,7 +137,7 @@ class BookRepository:
                books.append(book)
                return books
         except Exception as e:
-            print(f"Error al consultar libros a la base de datos: {e}")
+            self.logger.register_log(f"Error al consultar libros a la base de datos: {e}")
             
     #metodo para mostrar información parcial de todos los libros
     
@@ -145,7 +150,7 @@ class BookRepository:
                 print(f" ID: {book.get_id()} \n Título: {book.get_title()} \n Categoría: {book.get_category()}")
                 print("\n")
         except Exception as e:
-            print(f"Error al agregar un libro a la base de datos: {e}")
+            self.logger.register_log(f"Error al agregar un libro a la base de datos: {e}")
             
     #metodo para mostrar la información completa de todos los libros
     def all_books_info(self):
@@ -157,7 +162,7 @@ class BookRepository:
                 print(f" ID: {book.get_id()} \n Autor: {book.get_author()} \n Categoría: {book.get_category()} \n Descripción: {book.get_description()} \n ISBN: {book.get_isbn()} \n Numero de paginas: {book.get_num_pag()} \n Título: {book.get_title()}")
                 print("\n")
         except Exception as e:
-            print(f"Error al agregar un libro a la base de datos: {e}")
+            self.logger.register_log(f"Error al agregar un libro a la base de datos: {e}")
 
     #valida que el id ingresado por el usuario sea valido
     def valid_id(self, id: int) -> bool:
@@ -165,6 +170,7 @@ class BookRepository:
         self.__conn.execute(sql, (id,))
         result = self.__conn.fetchone()
         return result is not None #esto devuelve true si encuentra un id valido en la base de datos
+        
     # funcion usada en el main.py para ingresar datos de un libro con input (refactorización)
     def get_book_input(self):
         print("Ingrese a continuación los siguientes datos del libro que desea crear")
@@ -183,7 +189,7 @@ class BookRepository:
                 num_pag = int(input("Número de páginas: "))
                 break
             except ValueError:
-                print("Por favor, ingrese un número válido para el número de páginas.")
+                self.logger.register_log("Por favor, ingrese un número válido para el número de páginas.")
         title = input("titulo: ")
         book = Book()
         book.set_author(author)
@@ -204,7 +210,7 @@ class BookRepository:
                     continue
                 break
             except ValueError:
-                print("El ID debe ser un número entero. Intente nuevamente.")
+                self.logger.register_log("El ID debe ser un número entero. Intente nuevamente.")
 
         book = self.get_book_input() #llama al metodo que pide todos los datos menos id
         book.set_id(book_id) #a ese objeto instanciado le agrega el id que previamente validamos
