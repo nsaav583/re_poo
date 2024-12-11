@@ -56,17 +56,22 @@ def menu_libros():
                     print("Libro eliminado correctamente")
             elif option == "6":
                 book_repository.all_books_info()
-                id = int(input("Ingrese el ID del libro que desea tomar prestado: "))
-                if book_repository.valid_id(id) is None:
+                book_id = int(input("Ingrese el ID del libro que desea tomar prestado: "))
+                if book_repository.valid_id(book_id) is None:
                     print("Debe ingresar un ID valido")
                 else:
                     name = input("Ingrese el nombre del usuario: ")
                     password = input("Ingrese la contraseña del usuario: ")
                     user = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
-                    book = book_repository.get_book_by_id(id) #desde este metodo se toman los datos del libro usando el id
+                    book = book_repository.get_book_by_id(book_id) #desde este metodo se toman los datos del libro usando el id
                     loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
             elif option == "7":
-                pass
+                #implementar algo para mostrar los prestamos del usuario, en proceso
+                loan_id = input("ingrese el id del prestamo que realizo: ")
+                book_id = input("ingrese el id del libro que desea devolver: ") 
+                book = book_repository.get_book_by_id(book_id)
+                loan_repository.return_book(loan_id, book) 
+                #falta correjir la validación para que no agregue un libro si es que no esta disponible
             elif option == "8":
                 print("\n")
                 print("Volviendo al menu principal")
