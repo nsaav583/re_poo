@@ -2,6 +2,7 @@ from infraestructure.mysqlconnection import MySQLConnection
 from infraestructure.user_repository import UserRepository
 from infraestructure.book_repository import BookRepository
 from infraestructure.loan_repository import LoanRepository
+from infraestructure.logs_utils import Logger
 from credentials_db import user, password, database, host
 from models.user import User
 
@@ -9,6 +10,7 @@ conn = MySQLConnection(host, user, password, database)
 user_repository = UserRepository(conn)
 book_repository = BookRepository(conn)
 loan_repository = LoanRepository(conn)
+logs_utils = Logger(conn)
 
 #menu para la gestión o CRUD de libros
 def menu_libros():
@@ -78,7 +80,8 @@ def menu_libros():
                 print("\n")
                 return
         except ValueError as e:
-                print(e)
+                print(e) #primero muestra el error en consola y la linea siguiente almacena el error en la base de datos
+                logs_utils.register_log(f"ocurrio el siguiente tipo de error: {e}")
 # Desplegar menu para gestionar usuarios
 while True:
     print("LIBRASTOCK")
