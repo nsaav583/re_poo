@@ -18,9 +18,8 @@ class LoanRepository:
                 book.get_isbn()
             ))
             self.__conn.commit()
-
             # Actualizar disponibilidad del libro en la base de datos, en proceso
-            sql_update = "UPDATE book SET is_available = FALSE WHERE id = %s"
+            sql_update = "UPDATE book SET is_available = 0 WHERE id = %s"
             self.__conn.execute(sql_update, (book.get_id()))
             self.__conn.commit()
             print(f"Prestamo realizado con exito, ahora el usuario: {user.get_name()} tiene el libro: {book.get_title()}")
@@ -35,3 +34,34 @@ class LoanRepository:
         self.__conn.execute(sql, (book_id))
         result = self.__conn.fetchone()
         return result
+    
+    def return_book(self, loan_id: int, book: Book):
+        try:
+            sql = "DELETE FROM loan WHERE loan_id = %s" 
+            self.__conn.execute(sql, (loan_id))
+            self.__conn.commit()
+
+            sql_update = "UPDATE book SET is_available = 1 WHERE id = %s" 
+            self.__conn.execute(sql_update, (book.get_id()))
+            
+            self.__conn.commit()
+            print(f"El libro '{book.get_title()}' ha sido devuelto.")
+        except Exception as e:
+            #self.__conn.rollback() #ver porque no funciona
+            print(f"Error al registrar la devolución: {e}")
+
+    #en proceso
+    def show_loans(self):
+        """Muestra todos los préstamos activos"""
+        self.cursor.execute("""
+            SELECT loans.loan_id, books.title, users.name
+            FROM loans
+            JOIN books ON loans.book_id = books.book_id
+            JOIN users ON loans.user_id = users.user_id
+        """)
+        loans = self.cursor.fetchall()
+        if not loans:
+            print("No hay préstamos activos.")
+        else:
+            for loan in loans:
+                print(f"Préstamo ID: {loan[0]}, Libro: '{loan[1]}', Usuario: {loan[2]}")
