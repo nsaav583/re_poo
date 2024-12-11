@@ -2,7 +2,6 @@ from infraestructure.connection import Connection
 from models.book import Book
 from typing import List
 import requests
-import logging
 from infraestructure.logs_utils import Logger
 
 class BookRepository:
