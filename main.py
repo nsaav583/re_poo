@@ -34,6 +34,8 @@ def menu_libros():
             elif option == "2":
                 book_repository.all_books_info()
             elif option == "3":
+                print("----LISTA DE LIBROS----")
+                book_repository.get_all_books_from_api()
                 isbn = input("Por favor ingresa el ISBN del libro: ")
                 book = book_repository.get_book_by_isbn(isbn)
                 if book:
