@@ -214,3 +214,8 @@ class BookRepository:
         book = self.get_book_input() #llama al metodo que pide todos los datos menos id
         book.set_id(book_id) #a ese objeto instanciado le agrega el id que previamente validamos
         return book
+        
+    def get_all_books_from_api(self):
+        response_book = requests.get("https://poo.nsideas.cl/api/libros")
+        for book in response_book.json():
+            print(f"Título: {book['titulo']}, ISBN: {book['isbn']}")
