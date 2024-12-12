@@ -75,28 +75,31 @@ def menu_libros():
                 book_repository.all_books_info()
                 id = int(input("Ingrese el ID del libro que desea eliminar: "))
                 if book_repository.valid_isbn(id) is None:
-                    print("Debe ingresar un ISBN valido")
+                    print("Debe ingresar un ID valido")
                 else:
                     book_repository.delete_book(id)
                     print("Libro eliminado correctamente")
             elif option == "6":
                 book_repository.all_books_info()
-                book_isbn = input("Ingrese el ISBN del libro que desea tomar prestado: ")
-                if book_repository.valid_isbn(book_isbn) is None:
-                    print("Debe ingresar un ISBN valido")
-                else:
-                    name = input("Ingrese el nombre del usuario: ")#
-                    password = input("Ingrese la contraseña del usuario: ")
-                    user_and_pwd = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
-                    if isinstance(user_and_pwd, str):  # si el resultado es un mensaje de error (tipo string)
-                        print(user_and_pwd)  # mostrar el error ocurrido (puede ser de la base de datos o bcrypt)
-                    elif user_and_pwd is None:  # si es None, las credenciales no son válidas
-                        print("El Usuario o contraseña no son válidos.")
+                try:
+                    book_isbn = input("Ingrese el ISBN del libro que desea tomar prestado: ")
+                    if book_repository.valid_isbn(book_isbn) is None:
+                        print("Debe ingresar un ISBN valido")
                     else:
-                        book = book_repository.get_book_by_id(book_id) #desde este metodo se toman los datos del libro usando el id
-                        loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
+                        name = input("Ingrese el nombre del usuario: ")
+                        password = input("Ingrese la contraseña del usuario: ")
+                        user_and_pwd = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
+                        if isinstance(user_and_pwd, str):  # si el resultado es un mensaje de error (tipo string)
+                            print(user_and_pwd)  # mostrar el error ocurrido (puede ser de la base de datos o bcrypt)
+                        elif user_and_pwd is None:  # si es None, las credenciales no son válidas
+                            print("El Usuario o contraseña no son válidos.")
+                        else:
+                            book = book_repository.get_book_by_isbn(book_isbn) #desde este metodo se toman los datos del libro usando el id
+                            loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
+                except Exception as e:
+                    print(f"ha ocurrido un error: {e}") 
+                    logs_utils.register_log(f"ocurrio el siguiente tipo de error: {e}")
             elif option == "7":
-                #implementar algo para mostrar los prestamos del usuario, en proceso
                 loan_repository.show_loans()
                 loan_id = input("ingrese el id del prestamo que realizo: ")
                 book_isbn = input("ingrese el isbn del libro que desea devolver: ") 
@@ -130,7 +133,7 @@ while True:
                 user_repository.create_user(user) 
                 print("Usuario registrado exitosamente.")
         except ValueError as e:
-                print(f"Error: {e}")
+            print(f"Error: {e}")
     elif(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
         password = input("Ingrese la contraseña del usuario: ")
@@ -148,7 +151,3 @@ while True:
         break
     else:
         print("debe ingresar una opción valida, entre 1 a 3")
-
-# ESTO ES PARA VER DETALLE DE UN LIBRO Y ALMACENARLO EN LA BASE DE DATOS (debo implementarlo en menu)
-# isbn = input("Ingrese ISBN del libro")  # ISBN de ejemplo
-# book_repository.get_book_from_api(isbn)
