@@ -68,5 +68,3 @@ class UserRepository:
             print("La contraseña debe tener al menos 6 caracteres. ¡Intenta de nuevo!")
             password = input("Ingrese la contraseña del usuario: ").strip()
         return name, password
-        # Captura cualquier otro error inesperado
-            return f"Ocurrió un error inesperado: {e}"
