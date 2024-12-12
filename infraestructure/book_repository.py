@@ -10,21 +10,23 @@ class BookRepository:
         # Instancia el Logger una vez en el constructor
         self.logger = Logger(self.__conn)  # ahora puedes usar `self.logger` en todos los métodos
         
-    def get_book_by_isbn(self, isbn: str):
+    def get_book_by_isbn(self, isbn: str) -> Book:
         # funcion que intenta obtener un libro de la base de datos por ISBN.
         try:
-            query = "SELECT * FROM libros WHERE isbn = %s"
-            self.__conn.execute(query, (isbn,))
+            sql = "SELECT * FROM book WHERE isbn = %s"
+            self.__conn.execute(sql, (isbn,))
             result = self.__conn.fetchone()
             if result:
                 book = Book()
                 book.set_id(result[0])
-                book.set_isbn(result[1])
-                book.set_title(result[2])
-                book.set_author(result[3])
-                book.set_description(result[4])
-                book.set_category(result[5])
-                book.set_num_pag(result[6])
+                book.set_author(result[1])
+                book.set_category(result[2])
+                book.set_description(result[3])
+                book.set_isbn(result[4])
+                book.set_num_pag(result[5])
+                book.set_title(result[6])
+                #print("\n")
+                #print(f" ID: {book.get_id()} \n Autor: {book.get_author()} \n Categoría: {book.get_category()} \n Descripción: {book.get_description()} \n ISBN: {book.get_isbn()} \n Numero de paginas: {book.get_num_pag()} \n Título: {book.get_title()}")
                 return book
             else:
                 self.logger.register_log(f"No se encontró un libro con el ISBN {isbn}.")
@@ -53,7 +55,7 @@ class BookRepository:
         else:
             print(f"Error al realizar la solicitud a la API: {response.status_code}")
         return None  
-          
+
     def create_book(self, book: Book) -> Book: # funcion modificada para lanzar excepciones
             try:
                 sql = "INSERT INTO book (author, category, description, isbn, num_pag, title) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -69,29 +71,7 @@ class BookRepository:
                 self.__conn.commit()
             except Exception as e:
                 self.logger.register_log(f"Error al agregar un libro a la base de datos: {e}")
-            
-    def get_book_by_id(self, book_id: int) -> Book:
-        try: 
-            sql = "SELECT id, author, category, description, isbn, num_pag, title FROM Book WHERE id = %s"
-            self.__conn.execute(sql, (book_id))
-            result = self.__conn.fetchone()
-            if result is None:
-                print(f"No se encontró el libro con el ID {book_id}.")
-                return None
-            book = Book()
-            book.set_id(result[0])
-            book.set_author(result[1])
-            book.set_category(result[2])
-            book.set_description(result[3])
-            book.set_isbn(result[4])
-            book.set_num_pag(result[5])
-            book.set_title(result[6])
-            print("\n")
-            print(f" ID: {book.get_id()} \n Autor: {book.get_author()} \n Categoría: {book.get_category()} \n Descripción: {book.get_description()} \n ISBN: {book.get_isbn()} \n Numero de paginas: {book.get_num_pag()} \n Título: {book.get_title()}")
-            return book
-        except Exception as e:
-            self.logger.register_log(f"Error al obtener el libro con ID {book_id}: {e}")
-    # TODO: update
+
     def update_book(self, book: Book) -> Book:
         try:
             sql = "UPDATE book SET author = %s, category = %s, description = %s, isbn = %s, num_pag = %s, title = %s WHERE id = %s"
@@ -108,7 +88,7 @@ class BookRepository:
         except Exception as e:
             self.logger.register_log(f"Error al editar un libro a la base de datos: {e}")
             
-    # TODO: delete
+    #elimina un libro de la base de datos por id
     def delete_book(self, id: int) -> None:
         try:
             sql = "DELETE FROM Book WHERE id = %s"
@@ -117,24 +97,24 @@ class BookRepository:
         except Exception as e:
             self.logger.register_log(f"Error al eliminar un libro a la base de datos: {e}")
 
-    # TODO: Select all
+    #selecciona todos los libros de la base de datos
     def get_all_book(self) -> List[Book]:
         try:
-           sql = "SELECT id, author, category, description, isbn, num_pag, title FROM Book"
-           self.__conn.execute(sql)
-           results = self.__conn.fetchall()
-           books = []
-           for item in results:
-               book = Book()
-               book.set_id(item[0])
-               book.set_author(item[1])
-               book.set_category(item[2])
-               book.set_description(item[3])
-               book.set_isbn(item[4])
-               book.set_num_pag(item[5])
-               book.set_title(item[6])
-               books.append(book)
-               return books
+            sql = "SELECT id, author, category, description, isbn, num_pag, title FROM Book"
+            self.__conn.execute(sql)
+            results = self.__conn.fetchall()
+            books = []
+            for item in results:
+                book = Book()
+                book.set_id(item[0])
+                book.set_author(item[1])
+                book.set_category(item[2])
+                book.set_description(item[3])
+                book.set_isbn(item[4])
+                book.set_num_pag(item[5])
+                book.set_title(item[6])
+                books.append(book)
+            return books
         except Exception as e:
             self.logger.register_log(f"Error al consultar libros a la base de datos: {e}")
             
@@ -163,12 +143,12 @@ class BookRepository:
         except Exception as e:
             self.logger.register_log(f"Error al agregar un libro a la base de datos: {e}")
 
-    #valida que el id ingresado por el usuario sea valido
-    def valid_id(self, id: int) -> bool:
-        sql = "SELECT id FROM Book WHERE id = %s"
-        self.__conn.execute(sql, (id,))
+    #valida que el isbn ingresado por el usuario sea valido
+    def valid_isbn(self, isbn: str) -> bool:
+        sql = "SELECT isbn FROM Book WHERE isbn = %s"
+        self.__conn.execute(sql, (isbn,))
         result = self.__conn.fetchone()
-        return result is not None #esto devuelve true si encuentra un id valido en la base de datos
+        return result is not None #esto devuelve true si encuentra un isbn valido en la base de datos
         
     # funcion usada en el main.py para ingresar datos de un libro con input (refactorización)
     def get_book_input(self):
@@ -202,20 +182,15 @@ class BookRepository:
     def get_book_input_for_editing(self):
         # Solicita el ID del libro a editar
         while True:
-            try: #con try validamos que sea un entero y con valid_id validamos que el id se encuentre en la base de datos
-                book_id = int(input("Ingrese el ID del libro que desea editar: "))
-                if self.valid_id(book_id) is False:
-                    print(f"No se encontró un libro con el ID {book_id}. Intente con otro ID.")
+            try: #con try validamos que sea un entero y con valid_isbn validamos que el isbn se encuentre en la base de datos
+                book_isbn = input("Ingrese el ISBN del libro que desea editar: ")
+                if self.valid_isbn(book_isbn) is False:
+                    print(f"No se encontró un libro con el ISBN {book_isbn}. Intente con otro ISBN.")
                     continue
                 break
             except ValueError:
-                self.logger.register_log("El ID debe ser un número entero. Intente nuevamente.")
+                self.logger.register_log("El ISBN debe ser un texto. Intente nuevamente.")
 
         book = self.get_book_input() #llama al metodo que pide todos los datos menos id
-        book.set_id(book_id) #a ese objeto instanciado le agrega el id que previamente validamos
+        book.set_isbn(book_isbn) #a ese objeto instanciado le agrega el id que previamente validamos
         return book
-        
-    def get_all_books_from_api(self):
-        response_book = requests.get("https://poo.nsideas.cl/api/libros")
-        for book in response_book.json():
-            print(f"Título: {book['titulo']}, ISBN: {book['isbn']}")
