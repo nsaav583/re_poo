@@ -82,14 +82,19 @@ def menu_libros():
             elif option == "6":
                 book_repository.all_books_info()
                 book_isbn = input("Ingrese el ISBN del libro que desea tomar prestado: ")
-                if book_repository.valid_isbn(book_isbn) is None:
-                    print("Debe ingresar un ISBN valido")
+                if book_repository.valid_id(book_id) is None:
+                    print("Debe ingresar un ID valido")
                 else:
-                    name = input("Ingrese el nombre del usuario: ")
+                    name = input("Ingrese el nombre del usuario: ")#
                     password = input("Ingrese la contraseña del usuario: ")
-                    user = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
-                    book = book_repository.get_book_by_isbn(book_isbn) #desde este metodo se toman los datos del libro usando el id
-                    loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
+                    user_and_pwd = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
+                    if isinstance(user_and_pwd, str):  # si el resultado es un mensaje de error (tipo string)
+                        print(user_and_pwd)  # mostrar el error ocurrido (puede ser de la base de datos o bcrypt)
+                    elif user_and_pwd is None:  # si es None, las credenciales no son válidas
+                        print("El Usuario o contraseña no son válidos.")
+                    else:
+                        book = book_repository.get_book_by_id(book_id) #desde este metodo se toman los datos del libro usando el id
+                        loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
             elif option == "7":
                 #implementar algo para mostrar los prestamos del usuario, en proceso
                 loan_repository.show_loans()
@@ -115,15 +120,17 @@ while True:
     option = input("Ingrese su opcion: ")
     if(option == "1"):
         try:
-            name = input("Ingrese el nombre del usuario: ")
-            password = input("Ingrese el la contraseña del usuario: ")
-            user = User()
-            user.set_name(name)
-            user.set_password(password)
-            user_repository.create_user(user)
-            print("Usuario registrado exitosamente.")
+            name, password = user_repository.get_user_input()
+            if not name or not password:
+                print("Error: Nombre o contraseña no pueden estar vacíos.")
+            else:
+                user = User()
+                user.set_name(name)
+                user.set_password(password)
+                user_repository.create_user(user) 
+                print("Usuario registrado exitosamente.")
         except ValueError as e:
-            print(f"Error: {e}")
+                print(f"Error: {e}")
     elif(option == "2"):
         name = input("Ingrese el nombre del usuario: ")
         password = input("Ingrese la contraseña del usuario: ")
