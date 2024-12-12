@@ -1,4 +1,5 @@
 from infraestructure.connection import Connection
+from infraestructure.logs_utils import Logger
 from models.user import User
 import pymysql
 import bcrypt 
@@ -23,7 +24,7 @@ class UserRepository:
         except pymysql.err.IntegrityError as e:
             self.logger.register_log(f"Error al crear un usuario {user.get_name}: ")
             raise ValueError(f"El nombre de usuario '{user.get_name()}' ya se encuentra registrado.") from e
-   
+
 # FUNCION PARA logear usuario, verificar contraseña y/o name, en caso de que el usuario exista en la base de datos imprimir "bienvenido !!!" y en caso de que no imprime "Usuario no encontrado o contraseña incorrecta".
     def login_user(self, name: str, password: str) -> User:
         try:
@@ -49,13 +50,14 @@ class UserRepository:
         # Captura errores específicos de la base de datos (ej., problemas de conexión o ejecución de consulta)
                 return f"Error de base de datos: {e}"
         except bcrypt.exceptions.BcryptError as e:
-               self.logger.register_log(e)
+                self.logger.register_log(e)
         # Captura cualquier error relacionado con bcrypt
-               return f"Error de bcrypt: {e}"
+                return f"Error de bcrypt: {e}"
         except Exception as e:
-               self.logger.register_log(e)
+                self.logger.register_log(e)
         # Captura cualquier otro error inesperado
-               return f"Ocurrió un error inesperado: {e}"
+                return f"Ocurrió un error inesperado: {e}"
+        
     def get_user_input(self):
         # Validar nombre de usuario
         name = input("Ingrese el nombre del usuario: ").strip()
