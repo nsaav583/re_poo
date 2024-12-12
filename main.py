@@ -74,8 +74,8 @@ def menu_libros():
             elif option == "5":
                 book_repository.all_books_info()
                 id = int(input("Ingrese el ID del libro que desea eliminar: "))
-                if book_repository.valid_isbn(id) is None:
-                    print("Debe ingresar un ID valido")
+                if book_repository.valid_id(id) is None:
+                    print("Debe ingresar un ISBN valido")
                 else:
                     book_repository.delete_book(id)
                     print("Libro eliminado correctamente")
