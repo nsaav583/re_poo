@@ -6,7 +6,7 @@ from models.loan import Loan
 class LoanRepository:
     def __init__(self, conn: Connection) -> None:
         self.__conn = conn
-    #metodo para prestar un libro, recibiendo un usuario y un libro, extrayendo de ambos información (este fue modificado)
+    #metodo para prestar un libro, recibiendo un usuario y un libro, extrayendo de ambos información
     def loan_book(self, book: Book, user: User) -> Loan:
         if self.is_available(book.get_id()): 
             try:
@@ -19,11 +19,12 @@ class LoanRepository:
                     book.get_isbn()
                     ))
                 self.__conn.commit()
-                sql_update = "UPDATE libros SET is_available = 0 WHERE id = %s"
+                # Actualizar disponibilidad del libro en la base de datos
+                sql_update = "UPDATE book SET is_available = 0 WHERE id = %s"
                 self.__conn.execute(sql_update, (book.get_id(),))
                 self.__conn.commit()
                 print(f"Préstamo realizado con éxito, ahora el usuario: {user.get_name()} tiene el libro: {book.get_title()}")
-            # Crear una instancia de Loan y usar los setters
+            # Crear una instancia de Loan y usa los setters
                 loan = Loan()
                 loan.set_user(user)  # Asignamos el objeto User
                 loan.set_book(book)  # Asignamos el objeto Book
@@ -31,7 +32,6 @@ class LoanRepository:
             # Suponiendo que el ID del préstamo se autoincremente en la tabla 'loan' y se puede recuperar
                 return loan
             except Exception as e:
-            # Si hay algún error, se hace un rollback de la transacción
                 print(f"Error al procesar el préstamo: {e}")
                 return None
         else:          
@@ -41,7 +41,7 @@ class LoanRepository:
     #metodo para ver si un libro esta disponible en la BD, en proceso (este tambien se modificó)
 
     def is_available(self, book_id: int) -> bool:
-        sql = "SELECT is_available FROM libros WHERE id = %s"
+        sql = "SELECT is_available FROM book WHERE id = %s"
         self.__conn.execute(sql, (book_id,))
         result = self.__conn.fetchone()
         if result and result[0] == 1:  # verificamos que 'is_available' sea 1 (disponible)
@@ -51,31 +51,34 @@ class LoanRepository:
     
     def return_book(self, loan_id: int, book: Book):
         try:
-            sql = "DELETE FROM loan WHERE loan_id = %s" 
-            self.__conn.execute(sql, (loan_id))
-            self.__conn.commit()
+            #primero se revisa si hay algun prestamo que coincida con los datos ingresados
+            sql_check = "SELECT * from loan WHERE loan_id = %s AND book_isbn = %s"
+            self.__conn.execute(sql_check, (loan_id, book.get_isbn()))
+            result = self.__conn.fetchone()
+
+            if not result: #valida que result contenga datos, osea que haya un prestamo valido
+                print("El préstamo no existe o los datos no coinciden.")
+                return
+
+            #una vez hecho la validación procede a eliminar el prestamo y a actualizar la disponibilidad a disponible
+            sql = "DELETE FROM loan WHERE loan_id = %s AND book_isbn = %s" 
+            self.__conn.execute(sql, (loan_id, book.get_isbn()))
+            result = self.__conn.commit()
 
             sql_update = "UPDATE book SET is_available = 1 WHERE id = %s" 
             self.__conn.execute(sql_update, (book.get_id()))
-            
             self.__conn.commit()
             print(f"El libro '{book.get_title()}' ha sido devuelto.")
         except Exception as e:
-            #self.__conn.rollback() #ver porque no funciona
             print(f"Error al registrar la devolución: {e}")
 
-    #en proceso
     def show_loans(self):
-        """Muestra todos los préstamos activos"""
-        self.cursor.execute("""
-            SELECT loans.loan_id, books.title, users.name
-            FROM loans
-            JOIN books ON loans.book_id = books.book_id
-            JOIN users ON loans.user_id = users.user_id
-        """)
-        loans = self.cursor.fetchall()
-        if not loans:
+        #Muestra todos los préstamos activos
+        sql = "SELECT loan_id, user_name, user_id, book_title, book_isbn FROM loan"
+        self.__conn.execute(sql)
+        results = self.__conn.fetchall()
+        if not results:
             print("No hay préstamos activos.")
         else:
-            for loan in loans:
-                print(f"Préstamo ID: {loan[0]}, Libro: '{loan[1]}', Usuario: {loan[2]}")
+            for loan in results:
+                print(f"ID de Préstamo: {loan[0]}, Usuario: {loan[1]}, ID de Usuario: {loan[2]}, Titulo del libro: {loan[3]}, ISBN del libro: {loan[4]}")
