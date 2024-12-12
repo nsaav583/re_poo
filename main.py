@@ -10,7 +10,7 @@ conn = MySQLConnection(host, user, password, database)
 user_repository = UserRepository(conn)
 book_repository = BookRepository(conn)
 loan_repository = LoanRepository(conn)
-logger = Logger(conn)
+logs_utils = Logger(conn)
 
 #menu para la gestión o CRUD de libros
 def menu_libros():
@@ -59,7 +59,7 @@ def menu_libros():
                         print(f"Descripción: {book_from_api.get_description()}")
                         print(f"Número de páginas: {book_from_api.get_num_pag()}")
             # Guardar el libro en la base de datos para futuras consultas
-                        book_repository.add_book(book_from_api)
+                        book_repository.create_book(book_from_api)
                         print("Libro guardado en la base de datos.")
                     else:
                         print("No se pudo encontrar el libro ni en la base de datos ni en la API.")
@@ -74,27 +74,28 @@ def menu_libros():
             elif option == "5":
                 book_repository.all_books_info()
                 id = int(input("Ingrese el ID del libro que desea eliminar: "))
-                if book_repository.valid_id(id) is None:
+                if book_repository.valid_isbn(id) is None:
                     print("Debe ingresar un ID valido")
                 else:
                     book_repository.delete_book(id)
                     print("Libro eliminado correctamente")
             elif option == "6":
                 book_repository.all_books_info()
-                book_id = int(input("Ingrese el ID del libro que desea tomar prestado: "))
-                if book_repository.valid_id(book_id) is None:
-                    print("Debe ingresar un ID valido")
+                book_isbn = input("Ingrese el ISBN del libro que desea tomar prestado: ")
+                if book_repository.valid_isbn(book_isbn) is None:
+                    print("Debe ingresar un ISBN valido")
                 else:
                     name = input("Ingrese el nombre del usuario: ")
                     password = input("Ingrese la contraseña del usuario: ")
                     user = user_repository.login_user(name, password) #desde el login se sacan los datos del usuario
-                    book = book_repository.get_book_by_id(book_id) #desde este metodo se toman los datos del libro usando el id
+                    book = book_repository.get_book_by_isbn(book_isbn) #desde este metodo se toman los datos del libro usando el id
                     loan_repository.loan_book(book, user) #este metodo toma un libro y un usuario para guardar la información   
             elif option == "7":
                 #implementar algo para mostrar los prestamos del usuario, en proceso
+                loan_repository.show_loans()
                 loan_id = input("ingrese el id del prestamo que realizo: ")
-                book_id = input("ingrese el id del libro que desea devolver: ") 
-                book = book_repository.get_book_by_id(book_id)
+                book_isbn = input("ingrese el isbn del libro que desea devolver: ") 
+                book = book_repository.get_book_by_isbn(book_isbn)
                 loan_repository.return_book(loan_id, book) 
                 #falta correjir la validación para que no agregue un libro si es que no esta disponible
             elif option == "8":
@@ -104,7 +105,7 @@ def menu_libros():
                 return
         except ValueError as e:
                 print(e) #primero muestra el error en consola y la linea siguiente almacena el error en la base de datos
-                logger.register_log(f"ocurrio el siguiente tipo de error: {e}")
+                logs_utils.register_log(f"ocurrio el siguiente tipo de error: {e}")
 # Desplegar menu para gestionar usuarios
 while True:
     print("LIBRASTOCK")
